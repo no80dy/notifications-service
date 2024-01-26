@@ -1,12 +1,12 @@
-from fastapi import Depends
 from core.config import settings
+from fastapi import Depends
 from faststream.kafka.fastapi import KafkaRouter
-from services.emails import get_email_service, EmailService
 from schemas.emails import (
     InputNewFilmsReleases,
     InputPersonalFilmSelection,
     InputWelcomeMessage,
 )
+from services.emails import EmailService, get_email_service
 
 router = KafkaRouter(settings.kafka_brokers)
 
@@ -14,7 +14,7 @@ router = KafkaRouter(settings.kafka_brokers)
 @router.subscriber("personal-film-selection", group_id="emails")
 async def handle_personal_film_selection(
     message: InputPersonalFilmSelection,
-    email_service: EmailService = Depends(get_email_service)
+    email_service: EmailService = Depends(get_email_service),
 ):
     """
     Обработчик получает сообщение о персональной подборке фильмов для
@@ -28,7 +28,7 @@ async def handle_personal_film_selection(
 @router.subscriber("new-films-release", group_id="emails")
 async def handle_new_films_releases(
     message: InputNewFilmsReleases,
-    email_service: EmailService = Depends(get_email_service)
+    email_service: EmailService = Depends(get_email_service),
 ):
     """
     Обработчик получает сообщение с данными о новых релизах фильмов,
@@ -41,7 +41,7 @@ async def handle_new_films_releases(
 @router.subscriber("welcome-message", group_id="emails")
 async def handle_welcome_message(
     message: InputWelcomeMessage,
-    email_service: EmailService = Depends(get_email_service)
+    email_service: EmailService = Depends(get_email_service),
 ):
     """
     Обработчик получает сообщение с данными о пользователе,

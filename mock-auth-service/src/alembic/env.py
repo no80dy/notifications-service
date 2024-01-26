@@ -3,17 +3,15 @@ import os
 import sys
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from db.postgresql import Base
+from db.postgresql import Base, dsn
 from models.entity import *
-from db.postgresql import dsn
 
 config = context.config
 
@@ -45,7 +43,7 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     configuration = config.get_section(config.config_ini_section)
-    configuration['sqlalchemy.url'] = url
+    configuration["sqlalchemy.url"] = url
     connectable = async_engine_from_config(
         configuration,
         prefix="sqlalchemy.",
