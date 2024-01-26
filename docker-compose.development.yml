@@ -70,6 +70,41 @@ services:
       - kafka-1
       - kafka-2
 
+  stats:
+    image: bitnami/rabbitmq:latest
+    environment:
+      - RABBITMQ_NODE_TYPE=stats
+      - RABBITMQ_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=rabbitmq
+      - RABBITMQ_SECURE_PASSWORD=yes
+      - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
+    ports:
+      - "5672:5672"
+    volumes:
+      - rabbitmqstats_data:/bitnami/rabbitmq/mnesia
+
+  queue-disc1:
+    image: bitnami/rabbitmq:latest
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-disc
+      - RABBITMQ_NODE_NAME=rabbit@queue-disc1
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+    volumes:
+      - rabbitmqdisc1_data:/bitnami/rabbitmq/mnesia
+
+  queue-ram1:
+    image: bitnami/rabbitmq:latest
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-ram
+      - RABBITMQ_NODE_NAME=rabbit@queue-ram1
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+    volumes:
+      - rabbitmqram1_data:/bitnami/rabbitmq/mnesia
+
   notification-api:
     build:
       context: ./notifications/src
@@ -87,3 +122,6 @@ volumes:
   kafka_0_data:
   kafka_1_data:
   kafka_2_data:
+  rabbitmqram1_data:
+  rabbitmqdisc1_data:
+  rabbitmqstats_data:

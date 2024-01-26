@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 
 from warehouse import rabbitmq
 from api.v1 import emails
-from core import settings
+from core.config import settings
 
 
 @asynccontextmanager

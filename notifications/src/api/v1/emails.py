@@ -1,7 +1,7 @@
 from faststream.kafka.fastapi import KafkaRouter
 
-from core import settings
-from schemas import (
+from core.config import settings
+from schemas.emails import (
 	InputWelcomeMessage,
 	InputNewFilmsReleases,
 	InputPersonalFilmSelection

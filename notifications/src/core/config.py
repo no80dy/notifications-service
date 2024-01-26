@@ -1,9 +1,6 @@
 import os
 
 from pydantic_settings import BaseSettings
-from logging import config as logging_config
-
-from .logger import LOGGING
 
 
 class Settings(BaseSettings):
