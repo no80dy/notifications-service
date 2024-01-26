@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+import uuid
+from pydantic import BaseModel, Field
 
 
 class InputPersonalFilmSelection(BaseModel):
@@ -7,7 +8,8 @@ class InputPersonalFilmSelection(BaseModel):
     оповещения пользователей персонально
     """
 
-    pass
+    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
+    films_ids: list[uuid.UUID] = Field(..., default_factory=list)
 
 
 class InputNewFilmsReleases(BaseModel):
@@ -15,8 +17,7 @@ class InputNewFilmsReleases(BaseModel):
     Данная модель предназначена для ежемесячного
     оповещения всех пользователей
     """
-
-    pass
+    films_ids: list[uuid.UUID] = Field(..., default_factory=list)
 
 
 class InputWelcomeMessage(BaseModel):
@@ -24,5 +25,4 @@ class InputWelcomeMessage(BaseModel):
     Данная модель предназначена для оповещения
     пользователей, которые только что зарегистрировались
     """
-
-    pass
+    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)

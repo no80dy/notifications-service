@@ -3,9 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from api.v1 import emails
 from core.config import settings
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
 from faststream.rabbit import RabbitBroker
 from warehouse import rabbitmq
 
@@ -41,24 +39,6 @@ app.include_router(
         "kafka",
     ],
 )
-
-templates = Jinja2Templates(directory="templates")
-
-
-@app.get("/new-films-releases", response_class=HTMLResponse)
-async def check(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="new-films-releases.html",
-        context={
-            "username": "Awesome user",
-            "film_count": 20,
-            "serial_count": 8,
-            "month": "Февраль",
-            "user_films_count": 1,
-        },
-    )
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

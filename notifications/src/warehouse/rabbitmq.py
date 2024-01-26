@@ -11,3 +11,7 @@ async def configure_rabbit_exchange():
 
 async def configure_rabbit_queue():
     await rabbitmq_broker.declare_queue(RabbitQueue(name="emails-queue", durable=True))
+
+
+def get_rabbitmq():
+    return rabbitmq_broker

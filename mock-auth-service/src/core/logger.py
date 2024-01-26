@@ -27,7 +27,7 @@ LOGGING = {
         "json_handler": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "/var/log/notifications/app.json",
+            "filename": "/var/log/auth/app.json",
             "formatter": "json_formatter",
         },
     },
