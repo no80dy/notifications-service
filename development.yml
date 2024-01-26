@@ -1,0 +1,31 @@
+version: '3'
+include:
+  - kafka.cluster.yml
+  - rabbitmq.cluster.yml
+services:
+  notifications:
+    build:
+      context: ./notifications/src
+      dockerfile: Dockerfile
+    env_file:
+      - ./notifications/src/.env.fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka-init
+      - stats
+      - queue-disc1
+      - queue-ram1
+    volumes:
+      - /tmp/logs/notification-api:/var/log/ugc_service/app.json
+
+  nginx:
+    image: nginx:1.19.2
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /tmp/logs/nginx/:/var/log/nginx
+    depends_on:
+      - notifications
+    ports:
+      - "8080:80"
