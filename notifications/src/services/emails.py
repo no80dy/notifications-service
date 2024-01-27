@@ -1,71 +1,108 @@
 import datetime
-
-import httpx
 import uuid
+from abc import ABC, abstractmethod
 from functools import lru_cache
 
+import httpx
+from core.jinja2 import template_env
 from fastapi import Depends
 from faststream.rabbit import RabbitBroker
-from warehouse.rabbitmq import get_rabbitmq
+from schemas.emails import OutputEmailMessage
 from schemas.users import User
-from core.jinja2 import template_env
+from warehouse.rabbitmq import get_rabbitmq
 
 
-class BasePersonalEmailService:
+async def get_users_data(user_id: uuid.UUID) -> list[User]:
+    url = f"http://localhost:8001/auth/api/v1/users/?users_ids={user_id}"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        return [User(**data) for data in response.json()]
+
+
+class IEmailService(ABC):
+    @abstractmethod
+    async def handle_message(self, data: dict) -> OutputEmailMessage:
+        pass
+
+    @abstractmethod
+    async def make_email_message(self, context: dict) -> OutputEmailMessage:
+        pass
+
+
+class BasePersonalEmailService(IEmailService):
     def __init__(self, broker: RabbitBroker):
         self.broker = broker
 
-    async def _make_get_request(self, url: str) -> list:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            return response.json()
-
-    async def enrich_user_data(self, user_id: uuid.UUID) -> list[User]:
-        url = f'http://localhost:8001/auth/api/v1/users/?users_ids={user_id}'
-        result = await self._make_get_request(url)
-        return [User(**data) for data in result]
-
-    async def handle_message(self, data: dict):
-        user_data = await self.enrich_user_data(data['user_id'])
+    async def handle_message(self, data: dict) -> OutputEmailMessage:
+        user_data = await get_users_data(data["user_id"])
 
         if not user_data:
-            raise ValueError('No user found')
+            raise ValueError("No user found")
 
-        data['username'] = user_data[0].username
-        return await self.render_to_html(data)
+        return await self.make_email_message({**user_data[0].model_dump(), **data})
 
-    async def render_to_html(self, data: dict):
-        return 'Error'
+    async def make_email_message(self, context: dict) -> OutputEmailMessage:
+        raise NotImplementedError("Method make_email_message not implemented")
 
 
 class PersonalFilmSelectionEmailService(BasePersonalEmailService):
+    subject_text = "Еженедельгая подборка фильмов для вас"
+    template_name = "personal-film-selection.html"
+
     def __init__(self, broker: RabbitBroker):
         super().__init__(broker)
 
-    async def render_to_html(self, context: dict):
-        template = template_env.get_template('personal-film-selection.html')
-        return template.render(**context)
+    async def make_email_message(self, context: dict) -> OutputEmailMessage:
+        template = template_env.get_template(self.template_name)
+        body = template.render(
+            username=context["username"], films_ids=context["films_ids"]
+        )
+        return OutputEmailMessage(
+            email_from="admin@example.com",
+            email_to=context["email"],
+            subject=self.subject_text,
+            body=body,
+        )
 
 
 class NewFilmsReleasesEmailService(BasePersonalEmailService):
+    subject_text = "Новые релизы фильмов и сериалов в этом месяце"
+    template_name = "new-films-releases.html"
+
     def __init__(self, broker: RabbitBroker):
         super().__init__(broker)
 
-    async def render_to_html(self, context: dict):
-        template = template_env.get_template('new-films-releases.html')
-        return template.render(
-            month=datetime.datetime.now().strftime('%B'),
-            **context
+    async def make_email_message(self, context: dict) -> OutputEmailMessage:
+        body = template_env.get_template(self.template_name).render(
+            username=context["username"],
+            month=datetime.datetime.now().strftime("%B"),
+            watched_count=context["watched_count"],
+        )
+        return OutputEmailMessage(
+            email_from="admin@example.com",
+            email_to=context["email"],
+            subject=self.subject_text,
+            body=body,
         )
 
 
 class WelcomeMessageEmailService(BasePersonalEmailService):
+    subject_text = "Добро пожаловать в PRACTIX"
+    template_name = "welcome.html"
+
     def __init__(self, broker: RabbitBroker):
         super().__init__(broker)
 
-    async def render_to_html(self, context: dict):
-        template = template_env.get_template('welcome.html')
-        return template.render(**context)
+    async def make_email_message(self, context: dict) -> OutputEmailMessage:
+        body = template_env.get_template(self.template_name).render(
+            username=context["username"]
+        )
+        return OutputEmailMessage(
+            email_from="admin@example.com",
+            email_to=context["email"],
+            subject=self.subject_text,
+            body=body,
+        )
 
 
 @lru_cache

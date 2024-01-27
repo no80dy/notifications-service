@@ -32,3 +32,15 @@ class InputWelcomeMessage(BaseModel):
     """
 
     user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
+
+
+class OutputEmailMessage(BaseModel):
+    """
+    Данный класс содержит всю информацию, нуобходимую для передачи
+    в воркер для отправки по email
+    """
+
+    email_from: str
+    email_to: str
+    subject: str
+    body: str

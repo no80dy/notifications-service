@@ -4,24 +4,11 @@ import uvicorn
 from api.v1 import emails
 from core.config import settings
 from fastapi import FastAPI
-from faststream.rabbit import RabbitBroker
-from warehouse import rabbitmq
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # rabbitmq.rabbitmq_broker = RabbitBroker(
-    #     host=settings.rabbitmq_host,
-    #     port=settings.rabbitmq_port,
-    #     login=settings.rabbitmq_login,
-    #     password=settings.rabbitmq_password,
-    # )
-    # await rabbitmq.rabbitmq_broker.connect()
-    # await rabbitmq.configure_rabbit_exchange()
-    # await rabbitmq.configure_rabbit_queue()
-    # async with emails.router.lifespan_context(app):
     yield
-    # await rabbitmq.rabbitmq_broker.close()
 
 
 app = FastAPI(
@@ -34,12 +21,6 @@ app = FastAPI(
 )
 
 
-# app.include_router(
-#     emails.router,
-#     tags=[
-#         "kafka",
-#     ],
-# )
 app.include_router(emails.router, prefix="/notifications/api/v1", tags=["kafka"])
 
 if __name__ == "__main__":
