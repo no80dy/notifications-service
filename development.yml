@@ -3,6 +3,7 @@ include:
   - kafka.cluster.yml
   - rabbitmq.cluster.yml
   - postgresql.node.yml
+#  - mongodb.cluster.yml
 services:
   notifications:
     build:

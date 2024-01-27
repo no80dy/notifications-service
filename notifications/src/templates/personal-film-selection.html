@@ -11,5 +11,12 @@
         <h2>
             Ловите персональную подборку:
         </h2>
+        <ul>
+            {% for film_id in films_ids %}
+                <li>
+                    <p>{{film_id}}</p>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock content %}

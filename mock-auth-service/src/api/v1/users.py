@@ -14,7 +14,7 @@ async def ping():
 
 
 @router.get(
-    "/users",
+    "/",
     description="Получение информации о пользователях по их идентификаторам",
     response_description="Список содержащий информацию о запрашиваемых пользователях",
     response_model=list[UserInformationResponse],

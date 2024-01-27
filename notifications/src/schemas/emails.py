@@ -17,9 +17,12 @@ class InputNewFilmsReleases(BaseModel):
     """
     Данная модель предназначена для ежемесячного
     оповещения всех пользователей
+
+    watched_count: всего просмотренно за месяц
     """
 
-    films_ids: list[uuid.UUID] = Field(..., default_factory=list)
+    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
+    watched_count: int
 
 
 class InputWelcomeMessage(BaseModel):

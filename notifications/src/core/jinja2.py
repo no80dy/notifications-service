@@ -1,3 +1,7 @@
-from fastapi.templating import Jinja2Templates
+from jinja2 import FileSystemLoader, Environment
+from core.config import BASE_DIR
 
-templates = Jinja2Templates(directory="templates")
+path = f'{BASE_DIR}/templates'
+template_env = Environment(
+	loader=FileSystemLoader(searchpath=path)
+)
