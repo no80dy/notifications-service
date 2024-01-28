@@ -1,9 +1,7 @@
 version: '3'
 include:
-  - kafka.cluster.yml
-  - rabbitmq.cluster.yml
   - postgresql.node.yml
-#  - mongodb.cluster.yml
+  - mongodb.node.yml
 services:
   notifications:
     build:

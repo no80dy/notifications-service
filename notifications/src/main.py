@@ -4,11 +4,15 @@ import uvicorn
 from api.v1 import emails
 from core.config import settings
 from fastapi import FastAPI
+from integration import mongodb
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    mongodb.mongo_client = AsyncIOMotorClient(settings.mongodb_url)
     yield
+    mongodb.mongo_client.close()
 
 
 app = FastAPI(

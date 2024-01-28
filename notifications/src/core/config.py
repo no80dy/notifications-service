@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     project_name: str = "ugc"
 
     mongodb_url: str = "mongodb://mongos1:27017"
-    database_name: str = "films_ugc"
-    collection_name: str = "events_ugc"
+    mongodb_database_name: str = "notificationsDb"
+    mongodb_notifications_collection_name: str = "notifications"
 
     kafka_brokers: str = "kafka-0:9092,kafka-1:9092,kafka-2:9092"
     default_topic: str = "film_events"
