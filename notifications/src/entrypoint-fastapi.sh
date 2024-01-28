@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 KAFKA_BROKERS=("kafka-0:9092" "kafka-1:9092" "kafka-2:9092")
-RABBITMQ_BROKERS=("stats:5672" "queue-disc1:5672" "queue-ram1:5672")
+RABBITMQ_BROKERS=("rabbitmq:5672")
 
 MAX_ATTEMPTS=30
 

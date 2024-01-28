@@ -9,7 +9,6 @@ from core.config import settings
 from core.jinja2 import template_env
 from fastapi import Depends
 from integration.brokers import RabbitMQBroker, get_message_broker
-from integration.rabbitmq import get_rabbitmq
 from integration.storages import MongoStorage, get_storage
 from schemas.emails import OutputEmailMessage
 from schemas.notifications import NotificationModel
@@ -18,7 +17,7 @@ from schemas.users import UserInformation
 
 async def get_users_data(users_ids: list[uuid.UUID]) -> list[UserInformation]:
     joined_users_ids = "&users_ids=".join([str(user_id) for user_id in users_ids])
-    url = f"http://localhost:8001/auth/api/v1/users/?users_ids={joined_users_ids}"
+    url = f"{settings.auth_service_url}/?users_ids={joined_users_ids}"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
         return [UserInformation(**data) for data in response.json()]
@@ -64,7 +63,7 @@ class BasePersonalEmailService:
         notification = await self._create_notification(user, **data)
         await asyncio.gather(
             self._insert_notification_in_storage(notification),
-            self.broker.publish_one(notification.content, "emails_queue")
+            self.broker.publish_one(notification.content, "emails_queue"),
         )
         return notification.content
 
@@ -112,9 +111,7 @@ class BaseGeneralEmailService:
         notifications = await self._create_notifications(users, **data)
         await asyncio.gather(
             self._insert_notifications_in_storage(notifications),
-            self.broker.publish_many(
-                notifications, "emails_queue"
-            ),
+            self.broker.publish_many(notifications, "emails_queue"),
         )
         return [notification.content for notification in notifications]
 
