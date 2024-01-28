@@ -1,5 +1,6 @@
 version: '3'
 include:
+  - kafka.cluster.yml
   - postgresql.node.yml
   - mongodb.node.yml
 services:

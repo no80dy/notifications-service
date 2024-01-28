@@ -3,7 +3,7 @@ import uuid
 from pydantic import BaseModel, Field
 
 
-class InputPersonalFilmSelection(BaseModel):
+class InputFilmSelectionMessage(BaseModel):
     """
     Данная модель предназначена для еженедельного
     оповещения пользователей персонально
@@ -13,7 +13,7 @@ class InputPersonalFilmSelection(BaseModel):
     films_ids: list[uuid.UUID] = Field(..., default_factory=list)
 
 
-class InputNewFilmsReleases(BaseModel):
+class InputFilmReleaseMessage(BaseModel):
     """
     Данная модель предназначена для ежемесячного
     оповещения всех пользователей
@@ -32,6 +32,13 @@ class InputWelcomeMessage(BaseModel):
     """
 
     user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
+
+
+class InputManagerMessage(BaseModel):
+    users_ids: list[uuid.UUID] = Field(..., default_factory=list)
+    email_from: str
+    subject: str
+    body: str
 
 
 class OutputEmailMessage(BaseModel):

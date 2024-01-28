@@ -9,8 +9,9 @@ from .auth import security_jwt
 router = APIRouter()
 
 
+# TODO: Сделать пагинацию, т.к. из-за большого количества сообщений могут быть задержки
 @router.get(
-    "/",
+    "/notifications",
     response_model=list[NotificationModel],
     summary="Просмотр всех уведомлений пользователя",
     description="Выдача всех уведомлений, прикрепленных к конкретному пользователю",
