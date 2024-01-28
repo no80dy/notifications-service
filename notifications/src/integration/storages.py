@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from functools import lru_cache
 from typing import Annotated, Any
 
 from core.config import settings
@@ -48,6 +49,7 @@ class MongoStorage(IStorage):
         await self.database_client[collection_name].insert_one(element)
 
 
+@lru_cache
 def get_storage(
     client: Annotated[AsyncIOMotorClient, Depends(get_mongo_client)]
 ) -> IStorage:

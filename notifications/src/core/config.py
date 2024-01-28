@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     rabbitmq_login: str
     rabbitmq_password: str
 
+    jwt_secret_key: str = "secret"
+    jwt_algorithm: str = "HS256"
+
     sentry_dsn: str
 
 

@@ -12,3 +12,4 @@ pre-commit==3.6.0
 flake8==7.0.0
 httpx==0.24.0
 motor==3.3.2
+PyJWT==2.8.0

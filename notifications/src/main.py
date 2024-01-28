@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from api.v1 import emails
+from api.v1 import emails, notifications
 from core.config import settings
 from fastapi import FastAPI
 from integration import mongodb
@@ -24,7 +24,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
+app.include_router(
+    notifications.router, prefix="/notifications/api/v1", tags=["notifications"]
+)
 app.include_router(emails.router, prefix="/notifications/api/v1", tags=["kafka"])
 
 if __name__ == "__main__":

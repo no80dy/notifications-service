@@ -13,9 +13,7 @@ services:
       - "8000:8000"
     depends_on:
       - kafka-init
-      - stats
-      - queue-disc1
-      - queue-ram1
+      - mongodb
     volumes:
       - /tmp/logs/notifications:/var/log/notifications/app.json
 
