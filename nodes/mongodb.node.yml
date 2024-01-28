@@ -2,7 +2,7 @@ services:
   mongodb:
     image: bitnami/mongodb:latest
     env_file:
-      - .env.mongodb
+      - ../.env.mongodb
     ports:
       - "27017:27017"
     volumes:

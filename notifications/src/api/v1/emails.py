@@ -1,23 +1,24 @@
-from fastapi import APIRouter, Depends
 from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from schemas.emails import (
     InputFilmReleaseMessage,
     InputFilmSelectionMessage,
     InputManagerMessage,
     InputWelcomeMessage,
+    OutputEmailMessage,
 )
 from services.emails import (
     FilmReleaseEmailService,
     FilmSelectionEmailService,
-    WelcomeEmailService,
     ManagerEmailService,
+    WelcomeEmailService,
+    get_manager_email_service,
     get_new_film_releases_email_service,
     get_personal_film_selection_email_service,
     get_welcome_email_service,
-    get_manager_email_service
 )
-from schemas.emails import OutputEmailMessage
 
 router = APIRouter()
 
@@ -73,11 +74,11 @@ async def handle_welcome_message(
 @router.post("/manager-message")
 async def handle_manager_message(
     message: InputManagerMessage,
-    email_service: Annotated[ManagerEmailService, Depends(get_manager_email_service)]
+    email_service: Annotated[ManagerEmailService, Depends(get_manager_email_service)],
 ) -> list[OutputEmailMessage]:
     """
     Обработчик получает сообщения пришедшие с панели менеджера
     для отправки уведомлений и отправляет их в RabbitMQ для воркера
     """
-    result = (await email_service.handle_message(message.model_dump()))
+    result = await email_service.handle_message(message.model_dump())
     return [message for message in result]

@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import uuid
 from functools import lru_cache
@@ -7,7 +8,7 @@ import httpx
 from core.config import settings
 from core.jinja2 import template_env
 from fastapi import Depends
-from faststream.rabbit import RabbitBroker
+from integration.brokers import RabbitMQBroker, get_message_broker
 from integration.rabbitmq import get_rabbitmq
 from integration.storages import MongoStorage, get_storage
 from schemas.emails import OutputEmailMessage
@@ -16,7 +17,7 @@ from schemas.users import UserInformation
 
 
 async def get_users_data(users_ids: list[uuid.UUID]) -> list[UserInformation]:
-    joined_users_ids = "&".join([str(user_id) for user_id in users_ids])
+    joined_users_ids = "&users_ids=".join([str(user_id) for user_id in users_ids])
     url = f"http://localhost:8001/auth/api/v1/users/?users_ids={joined_users_ids}"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
@@ -24,7 +25,7 @@ async def get_users_data(users_ids: list[uuid.UUID]) -> list[UserInformation]:
 
 
 class BasePersonalEmailService:
-    def __init__(self, broker: RabbitBroker, storage: MongoStorage) -> None:
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         self.broker = broker
         self.storage = storage
 
@@ -44,7 +45,8 @@ class BasePersonalEmailService:
         self, notification: NotificationModel
     ) -> None:
         await self.storage.insert_element(
-            notification.model_dump(mode='json'), settings.mongodb_notifications_collection_name
+            notification.model_dump(mode="json"),
+            settings.mongodb_notifications_collection_name,
         )
 
     async def handle_message(self, data: dict) -> OutputEmailMessage:
@@ -60,7 +62,10 @@ class BasePersonalEmailService:
             raise ValueError("No user found")
 
         notification = await self._create_notification(user, **data)
-        await self._insert_notification_in_storage(notification)
+        await asyncio.gather(
+            self._insert_notification_in_storage(notification),
+            self.broker.publish_one(notification.content, "emails_queue")
+        )
         return notification.content
 
     async def publish_data_to_broker(self):
@@ -71,7 +76,7 @@ class BasePersonalEmailService:
 
 
 class BaseGeneralEmailService:
-    def __init__(self, broker: RabbitBroker, storage: MongoStorage) -> None:
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         self.broker = broker
         self.storage = storage
 
@@ -94,7 +99,7 @@ class BaseGeneralEmailService:
         self, notifications: list[NotificationModel]
     ) -> None:
         await self.storage.insert_elements(
-            [notification.model_dump(mode='json') for notification in notifications],
+            [notification.model_dump(mode="json") for notification in notifications],
             settings.mongodb_notifications_collection_name,
         )
 
@@ -105,7 +110,12 @@ class BaseGeneralEmailService:
             raise ValueError("No users found")
 
         notifications = await self._create_notifications(users, **data)
-        await self._insert_notifications_in_storage(notifications)
+        await asyncio.gather(
+            self._insert_notifications_in_storage(notifications),
+            self.broker.publish_many(
+                notifications, "emails_queue"
+            ),
+        )
         return [notification.content for notification in notifications]
 
     async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
@@ -113,6 +123,9 @@ class BaseGeneralEmailService:
 
 
 class ManagerEmailService(BaseGeneralEmailService):
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
+        super().__init__(broker, storage)
+
     async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
         template = template_env.from_string(kwargs["body"])
         body = template.render(username=kwargs["username"])
@@ -128,7 +141,7 @@ class FilmSelectionEmailService(BasePersonalEmailService):
     subject_text = "Еженедельгая подборка фильмов для вас"
     template_name = "personal-film-selection.html"
 
-    def __init__(self, broker: RabbitBroker, storage: MongoStorage) -> None:
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
     async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
@@ -148,7 +161,7 @@ class FilmReleaseEmailService(BasePersonalEmailService):
     subject_text = "Новые релизы фильмов и сериалов в этом месяце"
     template_name = "new-films-releases.html"
 
-    def __init__(self, broker: RabbitBroker, storage: MongoStorage) -> None:
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
     async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
@@ -169,7 +182,7 @@ class WelcomeEmailService(BasePersonalEmailService):
     subject_text = "Добро пожаловать в PRACTIX"
     template_name = "welcome.html"
 
-    def __init__(self, broker: RabbitBroker, storage: MongoStorage) -> None:
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
     async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
@@ -186,7 +199,7 @@ class WelcomeEmailService(BasePersonalEmailService):
 
 @lru_cache
 def get_personal_film_selection_email_service(
-    broker: Annotated[RabbitBroker, Depends(get_rabbitmq)],
+    broker: Annotated[RabbitMQBroker, Depends(get_message_broker)],
     storage: Annotated[MongoStorage, Depends(get_storage)],
 ) -> FilmSelectionEmailService:
     return FilmSelectionEmailService(broker, storage)
@@ -194,7 +207,7 @@ def get_personal_film_selection_email_service(
 
 @lru_cache
 def get_new_film_releases_email_service(
-    broker: Annotated[RabbitBroker, Depends(get_rabbitmq)],
+    broker: Annotated[RabbitMQBroker, Depends(get_message_broker)],
     storage: Annotated[MongoStorage, Depends(get_storage)],
 ) -> FilmReleaseEmailService:
     return FilmReleaseEmailService(broker, storage)
@@ -202,7 +215,7 @@ def get_new_film_releases_email_service(
 
 @lru_cache
 def get_welcome_email_service(
-    broker: Annotated[RabbitBroker, Depends(get_rabbitmq)],
+    broker: Annotated[RabbitMQBroker, Depends(get_message_broker)],
     storage: Annotated[MongoStorage, Depends(get_storage)],
 ) -> WelcomeEmailService:
     return WelcomeEmailService(broker, storage)
@@ -210,7 +223,7 @@ def get_welcome_email_service(
 
 @lru_cache
 def get_manager_email_service(
-    broker: Annotated[RabbitBroker, Depends(get_rabbitmq)],
+    broker: Annotated[RabbitMQBroker, Depends(get_message_broker)],
     storage: Annotated[MongoStorage, Depends(get_storage)],
 ) -> ManagerEmailService:
     return ManagerEmailService(broker, storage)

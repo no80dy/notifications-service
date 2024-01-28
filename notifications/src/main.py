@@ -4,14 +4,25 @@ import uvicorn
 from api.v1 import emails, notifications
 from core.config import settings
 from fastapi import FastAPI
-from integration import mongodb
+from faststream.rabbit import RabbitBroker
+from integration import mongodb, rabbitmq
 from motor.motor_asyncio import AsyncIOMotorClient
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     mongodb.mongo_client = AsyncIOMotorClient(settings.mongodb_url)
+    rabbitmq.rabbitmq_broker = RabbitBroker(
+        host=settings.rabbitmq_host,
+        port=settings.rabbitmq_port,
+        login=settings.rabbitmq_login,
+        password=settings.rabbitmq_password,
+    )
+    await rabbitmq.rabbitmq_broker.connect()
+    await rabbitmq.configure_rabbit_queue()
+    await rabbitmq.configure_rabbit_exchange()
     yield
+    await rabbitmq.rabbitmq_broker.close()
     mongodb.mongo_client.close()
 
 
