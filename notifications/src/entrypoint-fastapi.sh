@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-KAFKA_BROKERS=("kafka-0:9092" "kafka-1:9092" "kafka-2:9092")
 RABBITMQ_BROKERS=("rabbitmq:5672")
 
 MAX_ATTEMPTS=30
@@ -28,17 +27,6 @@ exponential_backoff() {
     return 1
 }
 
-check_kafka_cluster() {
-    echo "Waiting for Kafka cluster to be ready..."
-
-    for broker in "${KAFKA_BROKERS[@]}"; do
-        exponential_backoff $broker || return 1
-    done
-
-    echo "All Kafka brokers are ready!"
-    return 0
-}
-
 check_rabbitmq_cluster() {
   echo "Waiting for RabbitMQ cluster to be ready..."
 
@@ -50,7 +38,6 @@ check_rabbitmq_cluster() {
   return 0
 }
 
-check_kafka_cluster
 check_rabbitmq_cluster
 
 gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000

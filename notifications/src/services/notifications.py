@@ -16,7 +16,7 @@ class NotificationsService:
         self, user_id: uuid.UUID
     ) -> list[EmailNotificationSchema]:
         notifications = await self.storage.find_elements_by_properties(
-            {"user_id": user_id}, settings.mongodb_notifications_collection_name
+            {"user_id": user_id}, "email_notifications"
         )
         return [
             EmailNotificationSchema(**notification) for notification in notifications

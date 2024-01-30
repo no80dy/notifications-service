@@ -4,19 +4,19 @@ include:
   - ./nodes/mongodb.node.yml
   - ./nodes/rabbitmq.yml
 services:
-#  notifications:
-#    build:
-#      context: ./notifications/src
-#      dockerfile: Dockerfile
-#    env_file:
-#      - ./notifications/src/.env.fastapi
-#    ports:
-#      - "8000:8000"
-#    depends_on:
-#      - rabbitmq
-#      - mongodb
-#    volumes:
-#      - /tmp/logs/notifications:/var/log/notifications/app.json
+  notifications:
+    build:
+      context: ./notifications/src
+      dockerfile: Dockerfile
+    env_file:
+      - ./notifications/src/.env.fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - mongodb
+    volumes:
+      - /tmp/logs/notifications:/var/log/notifications/app.json
 
   auth:
     build:
@@ -31,18 +31,18 @@ services:
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
 
-  worker:
-    build:
-      context: ./notification-worker/src
-      dockerfile: Dockerfile
-    env_file:
-      - ./notification-worker/src/.env.fastapi
-    ports:
-      - "8002:8000"
-    depends_on:
-      - rabbitmq
-    volumes:
-      - /tmp/logs/worker:/var/log/worker/app.json
+#  worker:
+#    build:
+#      context: ./notification-worker/src
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./notification-worker/src/.env.fastapi
+#    ports:
+#      - "8002:8000"
+#    depends_on:
+#      - rabbitmq
+#    volumes:
+#      - /tmp/logs/worker:/var/log/worker/app.json
 
   nginx:
     image: nginx:1.19.2
