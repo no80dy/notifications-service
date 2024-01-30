@@ -1,11 +1,18 @@
 import uuid
-
-from pydantic import BaseModel, Field
-
-from .emails import OutputEmailMessage
+from pydantic import BaseModel
 
 
-class NotificationModel(BaseModel):
-    notification_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
-    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
-    content: OutputEmailMessage
+class BaseNotificationPayload(BaseModel):
+    user_id: uuid.UUID
+
+
+class EmailNotificationSchema(BaseNotificationPayload):
+    email_from: str
+    email_to: str
+    subject: str
+    body: str
+
+
+class PushNotificationSchema(BaseNotificationPayload):
+    comment_id: uuid.UUID
+    producer_id: uuid.UUID

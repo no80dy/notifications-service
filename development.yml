@@ -4,19 +4,19 @@ include:
   - ./nodes/mongodb.node.yml
   - ./nodes/rabbitmq.yml
 services:
-  notifications:
-    build:
-      context: ./notifications/src
-      dockerfile: Dockerfile
-    env_file:
-      - ./notifications/src/.env.fastapi
-    ports:
-      - "8000:8000"
-    depends_on:
-      - rabbitmq
-      - mongodb
-    volumes:
-      - /tmp/logs/notifications:/var/log/notifications/app.json
+#  notifications:
+#    build:
+#      context: ./notifications/src
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./notifications/src/.env.fastapi
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - rabbitmq
+#      - mongodb
+#    volumes:
+#      - /tmp/logs/notifications:/var/log/notifications/app.json
 
   auth:
     build:

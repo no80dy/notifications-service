@@ -1,8 +1,7 @@
 import uvicorn
+from api.v1 import email
 from core.config import settings
 from fastapi import FastAPI
-from api.v1 import email
-
 
 app = FastAPI(
     description="Сервис воркер",

@@ -3,6 +3,7 @@ import datetime
 import uuid
 from functools import lru_cache
 from typing import Annotated, Any
+from abc import ABC, abstractmethod
 
 import httpx
 from core.config import settings
@@ -10,8 +11,7 @@ from core.jinja2 import template_env
 from fastapi import Depends
 from integration.brokers import RabbitMQBroker, get_message_broker
 from integration.storages import MongoStorage, get_storage
-from schemas.emails import OutputEmailMessage
-from schemas.notifications import NotificationModel
+from schemas.notifications import EmailNotificationSchema
 from schemas.users import UserInformation
 
 
@@ -23,83 +23,82 @@ async def get_users_data(users_ids: list[uuid.UUID]) -> list[UserInformation]:
         return [UserInformation(**data) for data in response.json()]
 
 
-class BasePersonalEmailService:
+class BaseEmailService(ABC):
+    storage_collection_name: str = "email_notifications"
+    broker_queue_name: str = "email_queue"
+
+    @abstractmethod
+    async def handle_message(self, data: dict) -> None:
+        pass
+
+    @abstractmethod
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
+        pass
+
+
+class BasePersonalEmailService(BaseEmailService):
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         self.broker = broker
         self.storage = storage
 
-    async def _create_notification(
-        self, user: UserInformation, **kwargs: Any
-    ) -> NotificationModel:
-        content = await self.make_email_message(
-            username=user.username,
-            email=user.email,
-            **kwargs,
-        )
-        return NotificationModel(
-            notification_id=uuid.uuid4(), user_id=user.id, content=content
-        )
-
     async def _insert_notification_in_storage(
-        self, notification: NotificationModel
+        self, notification: EmailNotificationSchema
     ) -> None:
         await self.storage.insert_element(
             notification.model_dump(mode="json"),
-            settings.mongodb_notifications_collection_name,
+            self.storage_collection_name,
         )
 
-    async def handle_message(self, data: dict) -> OutputEmailMessage:
+    async def handle_message(self, data: dict) -> None:
         users = await get_users_data(
-            [
-                data["user_id"],
-            ]
+            [data["user_id"], ]
         )
 
         if not users:
             raise ValueError("No user found")
 
         user = users[0]
-        notification = await self._create_notification(user, **data)
+        notification = await self.make_email_message(
+            username=user.username,
+            email=user.email,
+            **data
+        )
         await asyncio.gather(
             self._insert_notification_in_storage(notification),
-            self.broker.publish_one(notification.content, "emails_queue"),
+            self.broker.publish_one(notification, self.broker_queue_name),
         )
-        return notification.content
 
-    async def publish_data_to_broker(self):
-        pass
-
-    async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
         raise NotImplementedError("Method make_email_message not implemented")
 
 
-class BaseGeneralEmailService:
+class BaseGeneralEmailService(BaseEmailService):
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         self.broker = broker
         self.storage = storage
 
     async def _create_notifications(
         self, users: list[UserInformation], **kwargs: Any
-    ) -> list[NotificationModel]:
+    ) -> list[EmailNotificationSchema]:
         notifications = []
         for user in users:
-            content = await self.make_email_message(email=user.email, **kwargs)
+            content = await self.make_email_message(
+                user_id=user.id, email=user.email, **kwargs
+            )
             notifications.append(
-                NotificationModel(
-                    notification_id=uuid.uuid4(), user_id=user.id, content=content
-                )
+                EmailNotificationSchema(**content.model_dump())
             )
         return notifications
 
     async def _insert_notifications_in_storage(
-        self, notifications: list[NotificationModel]
+        self, notifications: list[EmailNotificationSchema]
     ) -> None:
         await self.storage.insert_elements(
             [notification.model_dump(mode="json") for notification in notifications],
-            settings.mongodb_notifications_collection_name,
+            self.storage_collection_name,
         )
 
-    async def handle_message(self, data: dict) -> list[OutputEmailMessage]:
+    async def handle_message(self, data: dict) -> None:
         users = await get_users_data(data["users_ids"])
 
         if not users:
@@ -108,11 +107,10 @@ class BaseGeneralEmailService:
         notifications = await self._create_notifications(users, **data)
         await asyncio.gather(
             self._insert_notifications_in_storage(notifications),
-            self.broker.publish_many(notifications, "emails_queue"),
+            self.broker.publish_many(notifications, self.broker_queue_name),
         )
-        return [notification.content for notification in notifications]
 
-    async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
         raise NotImplementedError("Method make_email_message not implemented")
 
 
@@ -120,8 +118,9 @@ class ManagerEmailService(BaseGeneralEmailService):
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
-    async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
-        return OutputEmailMessage(
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
+        return EmailNotificationSchema(
+            user_id=kwargs["user_id"],
             email_from=kwargs["email_from"],
             email_to=kwargs["email"],
             subject=kwargs["subject"],
@@ -130,18 +129,19 @@ class ManagerEmailService(BaseGeneralEmailService):
 
 
 class FilmSelectionEmailService(BasePersonalEmailService):
-    subject_text = "Еженедельгая подборка фильмов для вас"
+    subject_text = "Еженедельная подборка фильмов для вас"
     template_name = "personal-film-selection.html"
 
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
-    async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
         template = template_env.get_template(self.template_name)
         body = template.render(
             username=kwargs["username"], films_ids=kwargs["films_ids"]
         )
-        return OutputEmailMessage(
+        return EmailNotificationSchema(
+            user_id=kwargs["user_id"],
             email_from="admin@example.com",
             email_to=kwargs["email"],
             subject=self.subject_text,
@@ -156,13 +156,14 @@ class FilmReleaseEmailService(BasePersonalEmailService):
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
-    async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
         body = template_env.get_template(self.template_name).render(
             username=kwargs["username"],
             month=datetime.datetime.now().strftime("%B"),
             watched_count=kwargs["watched_count"],
         )
-        return OutputEmailMessage(
+        return EmailNotificationSchema(
+            user_id=kwargs["user_id"],
             email_from="admin@example.com",
             email_to=kwargs["email"],
             subject=self.subject_text,
@@ -177,11 +178,12 @@ class WelcomeEmailService(BasePersonalEmailService):
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(broker, storage)
 
-    async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
+    async def make_email_message(self, **kwargs: Any) -> EmailNotificationSchema:
         body = template_env.get_template(self.template_name).render(
             username=kwargs["username"]
         )
-        return OutputEmailMessage(
+        return EmailNotificationSchema(
+            user_id=kwargs["user_id"],
             email_from="admin@example.com",
             email_to=kwargs["email"],
             subject=self.subject_text,

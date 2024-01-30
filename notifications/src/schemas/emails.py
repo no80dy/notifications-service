@@ -41,15 +41,3 @@ class InputManagerMessage(BaseModel):
     email_from: str
     subject: str
     body: str
-
-
-class OutputEmailMessage(BaseModel):
-    """
-    Данный класс содержит всю информацию, нуобходимую для передачи
-    в воркер для отправки по email
-    """
-
-    email_from: str
-    email_to: str
-    subject: str
-    body: str
