@@ -1,6 +1,5 @@
 version: '3'
 include:
-  - ./clusters/kafka.cluster.yml
   - ./nodes/postgresql.node.yml
   - ./nodes/mongodb.node.yml
   - ./nodes/rabbitmq.yml

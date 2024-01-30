@@ -5,7 +5,7 @@ from api.v1 import email
 
 
 app = FastAPI(
-    description="Сервис нотификаций",
+    description="Сервис воркер",
     version="0.0.0",
     title=settings.project_name,
     docs_url="/notifications/api/openapi",
