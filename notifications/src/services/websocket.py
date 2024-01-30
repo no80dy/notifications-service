@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi import Depends
 from integration.brokers import RabbitMQBroker, get_message_broker
 from integration.storages import MongoStorage, get_storage
-from schemas.websocket import InputLikeCommentMessage
 from schemas.notifications import PushNotificationSchema
+from schemas.websocket import InputLikeCommentMessage
 
 
 class WebSocketService:

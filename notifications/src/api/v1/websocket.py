@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from schemas.websocket import InputLikeCommentMessage
 from services.websocket import WebSocketService, get_websocket_service
 
-
 router = APIRouter()
 
 

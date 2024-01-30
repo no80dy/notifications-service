@@ -19,8 +19,7 @@ class NotificationsService:
             {"user_id": user_id}, settings.mongodb_notifications_collection_name
         )
         return [
-            EmailNotificationSchema(**notification)
-            for notification in notifications
+            EmailNotificationSchema(**notification) for notification in notifications
         ]
 
 

@@ -1,9 +1,9 @@
 import asyncio
 import datetime
 import uuid
+from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Annotated, Any
-from abc import ABC, abstractmethod
 
 import httpx
 from core.config import settings
@@ -51,7 +51,9 @@ class BasePersonalEmailService(BaseEmailService):
 
     async def handle_message(self, data: dict) -> None:
         users = await get_users_data(
-            [data["user_id"], ]
+            [
+                data["user_id"],
+            ]
         )
 
         if not users:
@@ -59,9 +61,7 @@ class BasePersonalEmailService(BaseEmailService):
 
         user = users[0]
         notification = await self.make_email_message(
-            username=user.username,
-            email=user.email,
-            **data
+            username=user.username, email=user.email, **data
         )
         await asyncio.gather(
             self._insert_notification_in_storage(notification),
@@ -85,9 +85,7 @@ class BaseGeneralEmailService(BaseEmailService):
             content = await self.make_email_message(
                 user_id=user.id, email=user.email, **kwargs
             )
-            notifications.append(
-                EmailNotificationSchema(**content.model_dump())
-            )
+            notifications.append(EmailNotificationSchema(**content.model_dump()))
         return notifications
 
     async def _insert_notifications_in_storage(

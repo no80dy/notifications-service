@@ -38,8 +38,12 @@ app = FastAPI(
 app.include_router(
     notifications.router, prefix="/notifications/api/v1", tags=["user_notifications"]
 )
-app.include_router(websocket.router, prefix="/notifications/api/v1", tags=["push_notifications"])
-app.include_router(emails.router, prefix="/notifications/api/v1", tags=["email_notifications"])
+app.include_router(
+    websocket.router, prefix="/notifications/api/v1", tags=["push_notifications"]
+)
+app.include_router(
+    emails.router, prefix="/notifications/api/v1", tags=["email_notifications"]
+)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
