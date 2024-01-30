@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
 from typing import Annotated
-from services.websocket import WebSocketService, get_websocket_service
+
+from fastapi import APIRouter, Depends
 from schemas.websocket import InputCommentLikeMessage, OutputComentLikeMessage
+from services.websocket import WebSocketService, get_websocket_service
 
 router = APIRouter()
 
@@ -15,6 +16,8 @@ router = APIRouter()
 )
 async def handle_likes(
     message: InputCommentLikeMessage,
-    websocket_service: Annotated[InputCommentLikeMessage, Depends(get_websocket_service)]
+    websocket_service: Annotated[
+        InputCommentLikeMessage, Depends(get_websocket_service)
+    ],
 ):
     return await websocket_service.handle_message(message.model_dump())

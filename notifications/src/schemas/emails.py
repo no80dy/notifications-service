@@ -12,6 +12,7 @@ class InputFilmSelectionMessage(BasePersonalMessage):
     Данная модель предназначена для еженедельного
     оповещения пользователей персонально
     """
+
     films_ids: list[uuid.UUID]
 
 

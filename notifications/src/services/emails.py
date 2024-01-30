@@ -49,12 +49,10 @@ class BasePersonalEmailService:
         )
 
     async def handle_message(self, data: dict) -> OutputEmailMessage:
-        users = (
-            await get_users_data(
-                [
-                    data["user_id"],
-                ]
-            )
+        users = await get_users_data(
+            [
+                data["user_id"],
+            ]
         )
 
         if not users:
