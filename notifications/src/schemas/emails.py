@@ -3,17 +3,19 @@ import uuid
 from pydantic import BaseModel, Field
 
 
-class InputFilmSelectionMessage(BaseModel):
+class BasePersonalMessage(BaseModel):
+    user_id: uuid.UUID
+
+
+class InputFilmSelectionMessage(BasePersonalMessage):
     """
     Данная модель предназначена для еженедельного
     оповещения пользователей персонально
     """
-
-    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
-    films_ids: list[uuid.UUID] = Field(..., default_factory=list)
+    films_ids: list[uuid.UUID]
 
 
-class InputFilmReleaseMessage(BaseModel):
+class InputFilmReleaseMessage(BasePersonalMessage):
     """
     Данная модель предназначена для ежемесячного
     оповещения всех пользователей
@@ -21,17 +23,16 @@ class InputFilmReleaseMessage(BaseModel):
     watched_count: всего просмотренно за месяц
     """
 
-    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
     watched_count: int
 
 
-class InputWelcomeMessage(BaseModel):
+class InputWelcomeMessage(BasePersonalMessage):
     """
     Данная модель предназначена для оповещения
     пользователей, которые только что зарегистрировались
     """
 
-    user_id: uuid.UUID = Field(..., default_factory=uuid.uuid4)
+    pass
 
 
 class InputManagerMessage(BaseModel):

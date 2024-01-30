@@ -49,17 +49,18 @@ class BasePersonalEmailService:
         )
 
     async def handle_message(self, data: dict) -> OutputEmailMessage:
-        user = (
+        users = (
             await get_users_data(
                 [
                     data["user_id"],
                 ]
             )
-        )[0]
+        )
 
-        if not user:
+        if not users:
             raise ValueError("No user found")
 
+        user = users[0]
         notification = await self._create_notification(user, **data)
         await asyncio.gather(
             self._insert_notification_in_storage(notification),
@@ -84,9 +85,7 @@ class BaseGeneralEmailService:
     ) -> list[NotificationModel]:
         notifications = []
         for user in users:
-            content = await self.make_email_message(
-                username=user.username, email=user.email, **kwargs
-            )
+            content = await self.make_email_message(email=user.email, **kwargs)
             notifications.append(
                 NotificationModel(
                     notification_id=uuid.uuid4(), user_id=user.id, content=content
@@ -124,13 +123,11 @@ class ManagerEmailService(BaseGeneralEmailService):
         super().__init__(broker, storage)
 
     async def make_email_message(self, **kwargs: Any) -> OutputEmailMessage:
-        template = template_env.from_string(kwargs["body"])
-        body = template.render(username=kwargs["username"])
         return OutputEmailMessage(
             email_from=kwargs["email_from"],
             email_to=kwargs["email"],
             subject=kwargs["subject"],
-            body=body,
+            body=kwargs["body"],
         )
 
 
