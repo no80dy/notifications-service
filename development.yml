@@ -33,6 +33,15 @@ services:
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
 
+  ugc-service:
+    build:
+      context: ./mock-ugc-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
   nginx:
     image: nginx:1.19.2
     volumes:
@@ -42,5 +51,6 @@ services:
     depends_on:
       - notifications
       - auth
+      - ugc-service
     ports:
       - "80:80"
