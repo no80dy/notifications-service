@@ -9,8 +9,11 @@ async def configure_rabbit_exchange():
     )
 
 
-async def configure_rabbit_queue():
-    await rabbitmq_broker.declare_queue(RabbitQueue(name="emails_queue", durable=True))
+async def configure_rabbit_queues():
+    await rabbitmq_broker.declare_queue(RabbitQueue(name="email_queue", durable=True))
+    await rabbitmq_broker.declare_queue(
+        RabbitQueue(name="websocket_queue", durable=True)
+    )
 
 
 def get_rabbitmq():

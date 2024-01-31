@@ -5,27 +5,21 @@ from typing import Annotated
 from core.config import settings
 from fastapi import Depends
 from integration.storages import MongoStorage, get_storage
-from schemas.emails import OutputEmailMessage
-from schemas.notifications import NotificationModel
+from schemas.notifications import EmailNotificationSchema, PushNotificationSchema
 
 
 class NotificationsService:
     def __init__(self, storage: MongoStorage) -> None:
         self.storage = storage
 
-    async def get_user_notifications(
+    async def get_email_notifications(
         self, user_id: uuid.UUID
-    ) -> list[NotificationModel]:
+    ) -> list[EmailNotificationSchema]:
         notifications = await self.storage.find_elements_by_properties(
-            {"user_id": user_id}, settings.mongodb_notifications_collection_name
+            {"user_id": user_id}, "email_notifications"
         )
         return [
-            NotificationModel(
-                notification_id=notification["notification_id"],
-                user_id=notification["user_id"],
-                content=OutputEmailMessage(**notification["content"]),
-            )
-            for notification in notifications
+            EmailNotificationSchema(**notification) for notification in notifications
         ]
 
 

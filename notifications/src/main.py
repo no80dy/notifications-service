@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from api.v1 import emails, notifications
+from api.v1 import emails, notifications, websocket
 from core.config import settings
 from fastapi import FastAPI
 from faststream.rabbit import RabbitBroker
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
         password=settings.rabbitmq_password,
     )
     await rabbitmq.rabbitmq_broker.connect()
-    await rabbitmq.configure_rabbit_queue()
+    await rabbitmq.configure_rabbit_queues()
     await rabbitmq.configure_rabbit_exchange()
     yield
     await rabbitmq.rabbitmq_broker.close()
@@ -36,9 +36,14 @@ app = FastAPI(
 )
 
 app.include_router(
-    notifications.router, prefix="/notifications/api/v1", tags=["notifications"]
+    notifications.router, prefix="/notifications/api/v1", tags=["user_notifications"]
 )
-app.include_router(emails.router, prefix="/notifications/api/v1", tags=["kafka"])
+app.include_router(
+    websocket.router, prefix="/notifications/api/v1", tags=["push_notifications"]
+)
+app.include_router(
+    emails.router, prefix="/notifications/api/v1", tags=["email_notifications"]
+)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

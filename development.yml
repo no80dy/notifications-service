@@ -1,6 +1,5 @@
 version: '3'
 include:
-  - ./clusters/kafka.cluster.yml
   - ./nodes/postgresql.node.yml
   - ./nodes/mongodb.node.yml
   - ./nodes/rabbitmq.yml
@@ -16,7 +15,6 @@ services:
     depends_on:
       - rabbitmq
       - mongodb
-      - kafka-init
     volumes:
       - /tmp/logs/notifications:/var/log/notifications/app.json
 
@@ -32,6 +30,19 @@ services:
       - postgresql
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
+
+#  worker:
+#    build:
+#      context: ./notification-worker/src
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./notification-worker/src/.env.fastapi
+#    ports:
+#      - "8002:8000"
+#    depends_on:
+#      - rabbitmq
+#    volumes:
+#      - /tmp/logs/worker:/var/log/worker/app.json
 
   nginx:
     image: nginx:1.19.2
