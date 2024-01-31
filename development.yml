@@ -42,6 +42,15 @@ services:
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
 
+  email_admin:
+    build:
+      context: ./email-admin
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
   nginx:
     image: nginx:1.19.2
     volumes:

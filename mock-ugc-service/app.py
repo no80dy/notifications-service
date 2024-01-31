@@ -36,6 +36,7 @@ class OutputCommentLikeMessage(BaseModel):
 )
 async def post_event() -> JSONResponse:
     message = OutputCommentLikeMessage()
+
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(NOTIFICATION_SERVICE_URL, json=message.model_dump_json())
