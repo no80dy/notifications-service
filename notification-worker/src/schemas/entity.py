@@ -10,6 +10,6 @@ class InputEmailMessage(BaseModel):
 
 
 class InputLikeCommentMessage(BaseModel):
+    user_id: uuid.UUID
     producer_id: uuid.UUID
-    consumer_id: uuid.UUID
     comment_id: uuid.UUID

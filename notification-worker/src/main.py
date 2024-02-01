@@ -1,5 +1,5 @@
 import uvicorn
-from api.v1 import email
+from api.v1 import email, websocket
 from core.config import settings
 from fastapi import FastAPI
 from integration import smtp
@@ -25,6 +25,7 @@ app = FastAPI(
 )
 
 app.include_router(email.router, prefix="/worker/api/v1", tags=["rabbitmq"])
+app.include_router(websocket.router, tags=["websocket"])
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
