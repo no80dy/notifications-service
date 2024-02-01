@@ -7,25 +7,6 @@ from aiosmtplib import SMTP
 from fastapi import Depends
 from integration.smtp import get_smtp_client
 
-html_message = """
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HTML5 Boilerplate</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-  <h1>Page Title</h1>
-  <script src="scripts.js"></script>
-</body>
-
-</html>
-"""
-
 
 class EmailService:
     def __init__(self, smtp_client: SMTP):
@@ -38,7 +19,7 @@ class EmailService:
         message["Subject"] = data["subject"]
         message.attach(
             MIMEText(
-                html_message,
+                data["body"],
                 "html",
             )
         )
