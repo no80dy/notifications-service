@@ -1,10 +1,11 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
+from aiosmtplib import SMTP
 from api.v1 import email, websocket
 from core.config import settings
 from fastapi import FastAPI
 from integration import smtp
-from contextlib import asynccontextmanager
-from aiosmtplib import SMTP
 
 
 @asynccontextmanager

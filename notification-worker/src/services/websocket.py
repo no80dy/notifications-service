@@ -1,24 +1,20 @@
 import asyncio
 import uuid
-import jwt
-import time
 from functools import lru_cache
-from fastapi import WebSocket, Depends, WebSocketException, status
 from typing import Annotated
 
+from fastapi import Depends, WebSocket
 from integration.websocket import WebSocketRouteTable, get_websocket_route_table
-from core.config import settings
 
 
 class WebSocketSenderService:
-    def __init__(
-        self,
-        websocket_route_table: WebSocketRouteTable
-    ) -> None:
+    def __init__(self, websocket_route_table: WebSocketRouteTable) -> None:
         self.websocket_route_table = websocket_route_table
 
     async def handle_message(self, data: dict):
-        connection = self.websocket_route_table.get_websocket_by_user_id(data["user_id"])
+        connection = self.websocket_route_table.get_websocket_by_user_id(
+            data["user_id"]
+        )
         if not connection:
             return None
         producer_id = data["producer_id"]
@@ -31,11 +27,7 @@ class WebSocketReceiverService:
     def __init__(self, websocket_route_table: WebSocketRouteTable):
         self.websocket_route_table = websocket_route_table
 
-    async def connect(
-        self,
-        user_id: uuid.UUID,
-        websocket: WebSocket
-    ) -> None:
+    async def connect(self, user_id: uuid.UUID, websocket: WebSocket) -> None:
         await websocket.accept()
         self.websocket_route_table.add_pair_in_table(user_id, websocket)
         while True:

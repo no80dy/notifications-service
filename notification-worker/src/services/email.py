@@ -2,10 +2,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from functools import lru_cache
 from typing import Annotated
+
 from aiosmtplib import SMTP
 from fastapi import Depends
 from integration.smtp import get_smtp_client
-
 
 html_message = """
 <!DOCTYPE html>
@@ -36,7 +36,12 @@ class EmailService:
         message["From"] = data["email_from"]
         message["To"] = data["email_to"]
         message["Subject"] = data["subject"]
-        message.attach(MIMEText(html_message, "html", ))
+        message.attach(
+            MIMEText(
+                html_message,
+                "html",
+            )
+        )
 
         await self.smtp_client.send_message(
             message, sender="root@localhost", recipients="somebody@localhost"
@@ -47,7 +52,5 @@ class EmailService:
 
 
 @lru_cache
-def get_email_service(
-    smtp_client: Annotated[SMTP, Depends(get_smtp_client)]
-):
+def get_email_service(smtp_client: Annotated[SMTP, Depends(get_smtp_client)]):
     return EmailService(smtp_client)
