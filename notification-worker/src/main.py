@@ -10,14 +10,15 @@ from integration import smtp
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    smtp.smtp_client = SMTP(hostname="127.0.0.1", port=1025)
-    await smtp.smtp_client.connect()
-    yield
-    smtp.smtp_client.close()
+    async with email.router.lifespan_context(app):
+        smtp.smtp_client = SMTP(hostname="127.0.0.1", port=1025)
+        await smtp.smtp_client.connect()
+        yield
+        smtp.smtp_client.close()
 
 
 app = FastAPI(
-    description="Сервис воркер",
+    description="notification worker",
     version="0.0.0",
     title=settings.project_name,
     docs_url="/worker/api/openapi",
@@ -25,7 +26,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(email.router, prefix="/worker/api/v1", tags=["rabbitmq"])
+app.include_router(email.router)
 app.include_router(websocket.router, tags=["websocket"])
 
 if __name__ == "__main__":
