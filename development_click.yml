@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  clickhouse:
+    build:
+      context: ./deploy/clickhouse
+      dockerfile: Dockerfile
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "8123:8123"

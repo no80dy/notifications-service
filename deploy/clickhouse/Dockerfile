@@ -1,9 +1,3 @@
-FROM bitnami/kafka:latest
+FROM yandex/clickhouse-server
+COPY data/init_db.sql /docker-entrypoint-initdb.d/
 
-WORKDIR /kafka
-
-COPY entrypoint-kafka.sh entrypoint-kafka.sh
-
-COPY . .
-
-ENTRYPOINT [ "/bin/bash", "./entrypoint-kafka.sh" ]

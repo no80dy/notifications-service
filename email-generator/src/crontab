@@ -1,0 +1,1 @@
+* * * * * /usr/bin/python3 /app/cron_jobs/monthly_release_films.py >> /var/log/cron.log 2>&1

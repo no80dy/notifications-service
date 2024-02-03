@@ -1,14 +1,10 @@
 version: '3'
 
 services:
-  clickhouse:
-#    image: bitnami/clickhouse:23
+  email_generator:
     build:
-      context: .
+      context: ./src
       dockerfile: Dockerfile
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
     ports:
-      - "8123:8123"
-#    volumes:
-#      - ./data/:/docker-entrypoint-initdb.d/
+      - "8004:8000"
+
