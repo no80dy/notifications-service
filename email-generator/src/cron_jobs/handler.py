@@ -13,10 +13,10 @@ class NotificationHandler:
         pass
 
     @staticmethod
-    def sent_notification(notification: Notification):
+    def sent_notification(url: str, notification: Notification) -> str:
         """Отправляет сообщение в сервис нотификации."""
         try:
-            response = requests.post(settings.notification_service_url, json=notification.model_dump_json())
+            response = requests.post(url, json=notification.model_dump_json())
             return response.text
         except ConnectionError or ConnectTimeout as e:
             logging.error(e)
@@ -32,4 +32,3 @@ class NotificationHandler:
             return client.execute(query)
         except Exception as e:
             logging.error(e)
-

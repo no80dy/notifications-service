@@ -15,8 +15,10 @@ class OutputFilmReleaseMessage(Notification):
        оповещения всех пользователей о новых фильмах в кинотеатре за последний месяц.
    """
     event_name: str = 'films_release'
+    user_id: UUID
     film_ids: list[UUID]
     month_release: int = Field(ge=1, le=12)
+    watched_count: int
 
 
 class OutputFilmSelectionMessage(Notification):
@@ -26,4 +28,4 @@ class OutputFilmSelectionMessage(Notification):
     """
     event_name: str = 'films_selection'
     user_id: UUID
-    films_ids: list[UUID]
+    film_ids: list[UUID]
