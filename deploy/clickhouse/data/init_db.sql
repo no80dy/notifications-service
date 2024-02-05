@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS events.ugc_events (
 ORDER BY id;
 
 -- По нормальному пачкой почему-то не вставляет. Какой-то баг
+-- event_name = 'film_release'
 INSERT INTO events.ugc_events (event_name, film_id, created_at)
 VALUES
 ('film_release', '1530ac24-8123-4db8-85ef-ccce5a3a37f1', '2024-01-10 00:00:00');
@@ -43,3 +44,19 @@ VALUES
 INSERT INTO events.ugc_events (event_name, film_id, created_at)
 VALUES
 ('film_release', '1111b483-63c4-4700-bf1a-c1ce51f40bf4', '2024-01-10 00:00:00');
+
+-- event_name = 'film_history'
+INSERT INTO events.ugc_events (event_name, user_id, film_id, film_sec, created_at)
+VALUES
+('film_history', '3fa85f64-5717-4562-b3fc-2c963f66afa6', '1530ac24-8123-4db8-85ef-ccce5a3a37f1', 1, '2024-02-05 00:00:00');
+
+-- event_name = 'film_favorites'
+INSERT INTO events.ugc_events (event_name, user_id, film_id, created_at)
+VALUES
+('film_favorites', '3fa85f64-5717-4562-b3fc-2c963f66afa6', '1530ac24-8123-4db8-85ef-ccce5a3a37f1', '2024-02-05 00:00:00');
+INSERT INTO events.ugc_events (event_name, user_id, film_id, created_at)
+VALUES
+('film_favorites', '3fa85f64-5717-4562-b3fc-2c963f66afa6', 'bb0be635-cafc-4102-bc00-531814aad57b', '2024-02-05 00:00:00');
+INSERT INTO events.ugc_events (event_name, user_id, film_id, created_at)
+VALUES
+('film_favorites', '3fa85f64-5717-4562-b3fc-2c963f66afa6', '1c0dfb1c-f070-408b-b288-114e2d609a15', '2024-02-05 00:00:00');
