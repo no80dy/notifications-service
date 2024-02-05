@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 
 
@@ -8,6 +10,7 @@ class InputEmailMessage(BaseModel):
     body: str
 
 
-class InputWebSocketMessage(BaseModel):
-    producer_name: str
-    consumer_name: str
+class InputLikeCommentMessage(BaseModel):
+    user_id: uuid.UUID
+    producer_id: uuid.UUID
+    comment_id: uuid.UUID

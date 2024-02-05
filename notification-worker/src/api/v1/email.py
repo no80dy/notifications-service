@@ -1,11 +1,11 @@
 from typing import Annotated
-
-from core.config import settings
 from fastapi import Depends
-from faststream.rabbit.fastapi import RabbitRouter
-from schemas.entity import InputEmailMessage, InputWebSocketMessage
+from schemas.entity import InputEmailMessage, InputLikeCommentMessage
 from services.email import EmailService, get_email_service
-from services.websocket import WebSocketService, get_websocket_service
+from services.websocket import WebSocketSenderService, get_websocket_sender_service
+from integration.rabbitmq import get_rabbitmq_broker
+from faststream.rabbit.fastapi import RabbitRouter
+from core.config import settings
 
 router = RabbitRouter(
     host=settings.rabbitmq_host,
@@ -20,12 +20,14 @@ async def handle_emails_queue(
     message: InputEmailMessage,
     email_service: Annotated[EmailService, Depends(get_email_service)],
 ):
-    pass
+    await email_service.handle_message(message.model_dump())
 
 
-@router.subscriber("wobsocket_queue")
-async def handle_websocket_queue(
-    message: InputWebSocketMessage,
-    websocket_service: Annotated[WebSocketService, Depends(get_websocket_service)],
+@router.subscriber("websockets_queue")
+async def get_message(
+    message: InputLikeCommentMessage,
+    sender_service: Annotated[
+        WebSocketSenderService, Depends(get_websocket_sender_service)
+    ],
 ):
-    pass
+    await sender_service.handle_message(message.model_dump())

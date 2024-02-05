@@ -1,5 +1,6 @@
 version: '3'
 include:
+  - ./nodes/mailserver.yml
   - ./nodes/postgresql.node.yml
   - ./nodes/mongodb.node.yml
   - ./nodes/rabbitmq.yml
