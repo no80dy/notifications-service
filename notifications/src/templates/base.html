@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Приветственное письмо от PRACTIX</title>
+    </head>
+    <style>
+        .main-mail-body {
+            text-align: center;
+        }
+        .mail-message-div {
+            background-color: #eaeaff;
+            margin-left: 200px;
+            margin-right: 200px;
+            padding: 25px;
+        }
+        .main-message-button-a {
+            display: block;
+            background-color: #6868ff;
+            color: white;
+            width: 100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 25px;
+        }
+    </style>
+    <body>
+        <div class="main-mail-body">
+            <h1>PRACTICX</h1>
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,87 @@
+version: '3'
+include:
+  - ./nodes/mailserver.yml
+  - ./nodes/postgresql.node.yml
+  - ./nodes/mongodb.node.yml
+  - ./nodes/rabbitmq.yml
+  - ./nodes/clickhouse.node.yml
+services:
+  notifications:
+    build:
+      context: ./notifications/src
+      dockerfile: Dockerfile
+    env_file:
+      - ./notifications/src/.env.fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - mongodb
+    volumes:
+      - /tmp/logs/notifications:/var/log/notifications/app.json
+
+  auth:
+    build:
+      context: ./mock-auth-service/src
+      dockerfile: Dockerfile
+    env_file:
+      - ./mock-auth-service/src/.env.fastapi
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgresql
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
+#  worker:
+#    build:
+#      context: ./notification-worker/src
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./notification-worker/src/.env.fastapi
+#    ports:
+#      - "8002:8000"
+#    depends_on:
+#      - rabbitmq
+#    volumes:
+#      - /tmp/logs/worker:/var/log/worker/app.json
+
+  ugc-service:
+    build:
+      context: ./mock-ugc-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
+  email_admin:
+    build:
+      context: ./email-admin
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
+  email_generator:
+    build:
+      context: ./email-generator/src
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
+  nginx:
+    image: nginx:1.19.2
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /tmp/logs/nginx/:/var/log/nginx
+    depends_on:
+      - notifications
+      - auth
+      - ugc-service
+    ports:
+      - "80:80"

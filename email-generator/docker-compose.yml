@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  email_generator:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
+
