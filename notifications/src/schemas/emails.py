@@ -23,7 +23,7 @@ class InputFilmReleaseMessage(BasePersonalMessage):
 
     watched_count: всего просмотренно за месяц
     """
-
+    film_ids: list[uuid.UUID]
     watched_count: int
 
 
