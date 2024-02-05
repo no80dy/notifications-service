@@ -8,4 +8,12 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
-      - "8123:8123"
+      - "9000:9000"
+
+  email_generator:
+    build:
+      context: ./email-generator/src
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
+

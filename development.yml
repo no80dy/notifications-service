@@ -4,6 +4,7 @@ include:
   - ./nodes/postgresql.node.yml
   - ./nodes/mongodb.node.yml
   - ./nodes/rabbitmq.yml
+  - ./nodes/clickhouse.node.yml
 services:
   notifications:
     build:
@@ -48,6 +49,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8003:8000"
+    volumes:
+      - /tmp/logs/auth:/var/log/auth/app.json
+
+  email_generator:
+    build:
+      context: ./email-generator/src
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
 
