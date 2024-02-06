@@ -26,7 +26,7 @@ router = RabbitRouter(
     host=settings.rabbitmq_host,
     port=settings.rabbitmq_port,
     login=settings.rabbitmq_login,
-    password=settings.rabbitmq_password,
+    password=settings.rabbitmq_password
 )
 
 
@@ -50,7 +50,7 @@ async def handle_film_release_email_notification(
     await email_service.handle_message(**message.model_dump())
 
 
-@router.subscriber("notifications.notifications.welcome_message_email_notification")
+@router.subscriber("notifications.welcome_message_email_notification")
 async def handle_welcome_message_email_notification(
     message: InputWelcomeNotification,
     email_service: Annotated[
@@ -60,7 +60,7 @@ async def handle_welcome_message_email_notification(
     await email_service.handle_message(**message.model_dump())
 
 
-@router.subscriber("notifications.notifications.film_selection_email_notification")
+@router.subscriber("notifications.film_selection_email_notification")
 async def handle_film_selection_email_notification(
     message: InputFilmSelectionNotification,
     email_service: Annotated[

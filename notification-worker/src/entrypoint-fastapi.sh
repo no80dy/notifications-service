@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 RABBITMQ_BROKERS=("rabbitmq:5672")
+MAILHOG_HOSTS=("mailhog:1025")
 
 MAX_ATTEMPTS=30
 
@@ -27,6 +28,17 @@ exponential_backoff() {
     return 1
 }
 
+check_mailhog_host() {
+  echo "Waiting for Mailhog to be ready..."
+
+  for host in "${MAILHOG_HOSTS[@]}"; do
+    exponential_backoff $host || return 1
+  done
+
+  echo "Mailhog are ready!"
+  return 0
+}
+
 check_rabbitmq_cluster() {
   echo "Waiting for RabbitMQ cluster to be ready..."
 
@@ -39,4 +51,6 @@ check_rabbitmq_cluster() {
 }
 
 check_rabbitmq_cluster
+check_mailhog_host
+
 gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000

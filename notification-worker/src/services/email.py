@@ -62,7 +62,7 @@ class BasePersonalEmailSenderService(BaseEmailSenderService):
         if len(users) != 2:
             raise ValueError(f"Expected two users, found {len(users)}")
         user, producer = users[0], users[1]
-        body = await self._render_tamplate(username=user.username, **kwargs)
+        body = await self._render_template(username=user.username, **kwargs)
         await self.send_email(
             email_from=producer.email,
             email_to=user.email,
@@ -70,7 +70,7 @@ class BasePersonalEmailSenderService(BaseEmailSenderService):
             body=body,
         )
 
-    async def _render_tamplate(self, **kwargs: Any) -> str:
+    async def _render_template(self, **kwargs: Any) -> str:
         raise NotImplementedError(
             "method _render_tamplate not implemented inside the class"
         )
@@ -80,7 +80,7 @@ class ManagerEmailSenderService(BasePersonalEmailSenderService):
     def __init__(self, smtp_client: SMTP) -> None:
         super().__init__(smtp_client)
 
-    async def _render_tamplate(self, **kwargs: Any) -> str:
+    async def _render_template(self, **kwargs: Any) -> str:
         return kwargs["body"]
 
 
@@ -88,7 +88,7 @@ class FilmReleaseEmailSenderService(BasePersonalEmailSenderService):
     def __init__(self, smtp_client: SMTP) -> None:
         super().__init__(smtp_client)
 
-    async def _render_tamplate(self, **kwargs: Any) -> str:
+    async def _render_template(self, **kwargs: Any) -> str:
         return template_env.get_template(kwargs["template_name"]).render(
             username=kwargs["username"],
             month=datetime.datetime.now().strftime("%B"),
@@ -101,7 +101,7 @@ class FilmSelectionEmailSenderService(BasePersonalEmailSenderService):
     def __init__(self, smtp_client: SMTP):
         super().__init__(smtp_client)
 
-    async def _render_tamplate(self, **kwargs: Any) -> str:
+    async def _render_template(self, **kwargs: Any) -> str:
         return template_env.get_template(kwargs["template_name"]).render(
             username=kwargs["username"], films_ids=kwargs["films_ids"]
         )
@@ -111,7 +111,7 @@ class WelcomeEmailSenderService(BasePersonalEmailSenderService):
     def __init__(self, smtp_client: SMTP):
         super().__init__(smtp_client)
 
-    async def _render_tamplate(self, **kwargs: Any):
+    async def _render_template(self, **kwargs: Any):
         return template_env.get_template(kwargs["template_name"]).render(
             username=kwargs["username"],
         )

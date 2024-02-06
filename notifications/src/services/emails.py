@@ -47,7 +47,7 @@ class GeneralEmailService(BaseEmailService):
         notifications = [
             await self.make_email_notification(
                 user_id=user_id,
-                producer_id=uuid.uuid4(),
+                producer_id=kwargs["producer_id"],
                 subject=kwargs["subject"],
                 body=kwargs["body"],
             )
@@ -110,7 +110,7 @@ class FilmSelectionEmailService(PersonalEmailService):
     ) -> OutputFilmSelectionNotification:
         return OutputFilmSelectionNotification(
             user_id=kwargs["user_id"],
-            producer_id=uuid.uuid4(),
+            producer_id=uuid.UUID("280bad4a-1792-47dc-b459-e611743715d6"),
             subject=self.subject,
             films_ids=kwargs["films_ids"],
             template_name=self.template_name,

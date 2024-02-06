@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     rabbitmq_login: str
     rabbitmq_password: str
 
+    mailhog_host: str
+    mailhog_port: int
+
     jwt_secret_key: str = "secret"
     jwt_algorithm: str = "HS256"
 
