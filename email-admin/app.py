@@ -14,9 +14,9 @@ from pydantic import BaseModel, EmailStr, Field
 app = FastAPI(
     title='Email-admin service',
     summary='Admins send messages for group of users',
-    docs_url="/email_admin/api/openapi",
-    openapi_url="/email_admin/api/openapi.json",
-    prefix="/email_admin/api/v1/"
+    docs_url="/email-admin/api/openapi",
+    openapi_url="/email-admin/api/openapi.json",
+    prefix="/email-admin/api/v1/"
 )
 
 MAX_EMAILS_BATCH_SIZE = 50

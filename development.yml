@@ -33,18 +33,18 @@ services:
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
 
-#  worker:
-#    build:
-#      context: ./notification-worker/src
-#      dockerfile: Dockerfile
-#    env_file:
-#      - ./notification-worker/src/.env.fastapi
-#    ports:
-#      - "8002:8000"
-#    depends_on:
-#      - rabbitmq
-#    volumes:
-#      - /tmp/logs/worker:/var/log/worker/app.json
+  worker:
+    build:
+      context: ./notification-worker/src
+      dockerfile: Dockerfile
+    env_file:
+      - ./notification-worker/src/.env.fastapi
+    ports:
+      - "8002:8000"
+    depends_on:
+      - rabbitmq
+    volumes:
+      - /tmp/logs/worker:/var/log/worker/app.json
 
   ugc-service:
     build:
@@ -55,7 +55,7 @@ services:
     volumes:
       - /tmp/logs/auth:/var/log/auth/app.json
 
-  email_admin:
+  email-admin:
     build:
       context: ./email-admin
       dockerfile: Dockerfile
