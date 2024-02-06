@@ -64,10 +64,10 @@ services:
 
   worker:
     build:
-      context: ./notification-worker/src
+      context: notification-worker/src
       dockerfile: Dockerfile
     env_file:
-      - ./notification-worker/src/.env.fastapi
+      - notification-worker/src/.env.fastapi
     ports:
       - "8005:8000"
     depends_on:

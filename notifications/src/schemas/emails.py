@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class BasePersonalNotification(BaseModel):
     user_id: uuid.UUID
+    producer_id: uuid.UUID
 
 
 class InputFilmSelectionNotification(BasePersonalNotification):

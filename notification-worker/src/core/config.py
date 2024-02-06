@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    project_name: str = "notification_worker"
+    project_name: str = "notification-worker"
 
     rabbitmq_host: str
     rabbitmq_port: int

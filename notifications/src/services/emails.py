@@ -110,7 +110,7 @@ class FilmSelectionEmailService(PersonalEmailService):
     ) -> OutputFilmSelectionNotification:
         return OutputFilmSelectionNotification(
             user_id=kwargs["user_id"],
-            producer_id=uuid.UUID("280bad4a-1792-47dc-b459-e611743715d6"),
+            producer_id=kwargs["producer_id"],
             subject=self.subject,
             films_ids=kwargs["films_ids"],
             template_name=self.template_name,
@@ -131,7 +131,7 @@ class FilmReleaseEmailService(PersonalEmailService):
     ) -> OutputFilmReleaseNotification:
         return OutputFilmReleaseNotification(
             user_id=kwargs["user_id"],
-            producer_id=uuid.uuid4(),
+            producer_id=kwargs["producer_id"],
             subject=self.subject,
             watched_count=kwargs["watched_count"],
             films_ids=kwargs["films_ids"],
@@ -151,7 +151,7 @@ class WelcomeEmailService(PersonalEmailService):
     async def make_email_notification(self, **kwargs: Any) -> OutputWelcomeNotification:
         return OutputWelcomeNotification(
             user_id=kwargs["user_id"],
-            producer_id=uuid.uuid4(),
+            producer_id=kwargs["producer_id"],
             subject=self.subject,
             template_name=self.template_name,
         )
