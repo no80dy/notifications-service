@@ -44,28 +44,25 @@ class BaseEmailSenderService:
             message, sender=email_from, recipients=email_to
         )
 
-    async def handle_message(self, **kwargs: Any) -> None:
+    async def handle_message(self, user_id: uuid.UUID, producer_id: uuid.UUID) -> None:
         raise NotImplementedError(
             "method handle_message not implemented inside the class"
         )
 
 
 class BasePersonalEmailSenderService(BaseEmailSenderService):
-    def __init__(self, smtp_client: SMTP):
+    def __init__(self, smtp_client: SMTP) -> None:
         super().__init__(smtp_client)
 
-    async def handle_message(self, **kwargs: Any):
-        users_ids = [
-            kwargs["user_id"],
-            kwargs["producer_id"],
-        ]
+    async def handle_message(self, user_id: uuid.UUID, producer_id: uuid, **kwargs: Any) -> None:
+        users_ids = [user_id, producer_id, ]
         if not all(users_ids):
             raise ValueError("Invalid users ids")
         users = await get_users_data(users_ids)
         if len(users) != 2:
             raise ValueError(f"Expected two users, found {len(users)}")
         user, producer = users[0], users[1]
-        body = await self._render_tamplate(**kwargs, username=user.username)
+        body = await self._render_tamplate(username=user.username, **kwargs)
         await self.send_email(
             email_from=producer.email,
             email_to=user.email,
@@ -80,7 +77,7 @@ class BasePersonalEmailSenderService(BaseEmailSenderService):
 
 
 class ManagerEmailSenderService(BasePersonalEmailSenderService):
-    def __init__(self, smtp_client: SMTP):
+    def __init__(self, smtp_client: SMTP) -> None:
         super().__init__(smtp_client)
 
     async def _render_tamplate(self, **kwargs: Any) -> str:
@@ -88,7 +85,7 @@ class ManagerEmailSenderService(BasePersonalEmailSenderService):
 
 
 class FilmReleaseEmailSenderService(BasePersonalEmailSenderService):
-    def __init__(self, smtp_client: SMTP):
+    def __init__(self, smtp_client: SMTP) -> None:
         super().__init__(smtp_client)
 
     async def _render_tamplate(self, **kwargs: Any) -> str:
