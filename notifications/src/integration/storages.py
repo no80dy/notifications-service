@@ -49,7 +49,8 @@ class MongoStorage(IStorage):
         await self.database_client[collection_name].insert_one(element)
 
     async def insert_elements(self, elements: list[dict], collection_name: str) -> None:
-        await self.database_client[collection_name].insert_many(elements)
+        result = await self.database_client[collection_name].insert_many(elements)
+        print(result)
 
 
 @lru_cache

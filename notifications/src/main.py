@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from api.v1 import emails, notifications, websocket
+from api.v1 import emails, websocket
 from core.config import settings
 from fastapi import FastAPI
 from faststream.rabbit import RabbitBroker
@@ -35,9 +35,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(
-    notifications.router, prefix="/notifications/api/v1", tags=["user_notifications"]
-)
 app.include_router(
     websocket.router, prefix="/notifications/api/v1", tags=["push_notifications"]
 )
