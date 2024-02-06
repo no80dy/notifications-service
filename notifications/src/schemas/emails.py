@@ -3,11 +3,11 @@ import uuid
 from pydantic import BaseModel, Field
 
 
-class BasePersonalMessage(BaseModel):
+class BasePersonalNotification(BaseModel):
     user_id: uuid.UUID
 
 
-class InputFilmSelectionMessage(BasePersonalMessage):
+class InputFilmSelectionNotification(BasePersonalNotification):
     """
     Данная модель предназначена для еженедельного
     оповещения пользователей персонально
@@ -16,7 +16,7 @@ class InputFilmSelectionMessage(BasePersonalMessage):
     films_ids: list[uuid.UUID]
 
 
-class InputFilmReleaseMessage(BasePersonalMessage):
+class InputFilmReleaseNotification(BasePersonalNotification):
     """
     Данная модель предназначена для ежемесячного
     оповещения всех пользователей
@@ -24,11 +24,11 @@ class InputFilmReleaseMessage(BasePersonalMessage):
     watched_count: всего просмотренно за месяц
     """
 
-    film_ids: list[uuid.UUID]
+    films_ids: list[uuid.UUID]
     watched_count: int
 
 
-class InputWelcomeMessage(BasePersonalMessage):
+class InputWelcomeNotification(BasePersonalNotification):
     """
     Данная модель предназначена для оповещения
     пользователей, которые только что зарегистрировались
@@ -37,8 +37,33 @@ class InputWelcomeMessage(BasePersonalMessage):
     pass
 
 
-class InputManagerMessage(BaseModel):
-    users_ids: list[uuid.UUID] = Field(..., default_factory=list)
-    email_from: str
+class InputManagerNotification(BaseModel):
+    users_ids: list[uuid.UUID]
+    producer_id: uuid.UUID
     subject: str
+    body: str
+
+
+class BaseOutputNotification(BaseModel):
+    user_id: uuid.UUID
+    producer_id: uuid.UUID
+    subject: str
+
+
+class OutputFilmSelectionNotification(BaseOutputNotification):
+    films_ids: list[uuid.UUID]
+    template_name: str
+
+
+class OutputFilmReleaseNotification(BaseOutputNotification):
+    films_ids: list[uuid.UUID]
+    watched_count: int
+    template_name: str
+
+
+class OutputWelcomeNotification(BaseOutputNotification):
+    template_name: str
+
+
+class OutputManagerNotification(BaseOutputNotification):
     body: str

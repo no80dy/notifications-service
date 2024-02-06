@@ -1,0 +1,16 @@
+<div class="mail-message-div">
+    <h2>Здравствуйте, {{username}}</h2>
+    <p>
+        В {{month}} в вашем онлайн-кинотеатре вышло много новинок:
+        <ul>
+            {% for film_id in films_ids %}
+                <li>
+                    <p>{{film_id}}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </p>
+    <h2>
+        В этом месяце вы посмотрели {{watched_count}} фильмов.
+    </h2>
+</div>
