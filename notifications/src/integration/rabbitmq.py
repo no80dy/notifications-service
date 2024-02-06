@@ -26,6 +26,9 @@ async def configure_rabbit_queues():
     await rabbitmq_broker.declare_queue(
         RabbitQueue(name="notifications.manager_email_notification", durable=True)
     )
+    await rabbitmq_broker.declare_queue(
+        RabbitQueue(name="notifications.websockets_notification", durable=True)
+    )
 
 
 def get_rabbitmq():

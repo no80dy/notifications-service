@@ -5,15 +5,8 @@ from typing import Annotated
 import jwt
 from core.config import settings
 from fastapi import APIRouter, Depends, Query, WebSocketException, status
-from fastapi.responses import HTMLResponse
 from faststream.rabbit.fastapi import RabbitRouter
-from schemas.entity import InputLikeCommentMessage
-from services.websocket import (
-    WebSocketReceiverService,
-    WebSocketSenderService,
-    get_websocket_receiver_service,
-    get_websocket_sender_service,
-)
+from services.websocket import WebSocketReceiverService, get_websocket_receiver_service
 from starlette.websockets import WebSocket
 
 router = APIRouter()

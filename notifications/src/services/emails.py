@@ -7,15 +7,15 @@ from typing import Annotated, Any
 from fastapi import Depends
 from integration.brokers import RabbitMQBroker, get_message_broker
 from integration.storages import MongoStorage, get_storage
+from schemas.emails import (
+    OutputFilmReleaseNotification,
+    OutputFilmSelectionNotification,
+    OutputManagerNotification,
+    OutputWelcomeNotification,
+)
 from schemas.notifications import (
     EmailGeneralNotificationSchemaRefactor,
     EmailPersonalNotificationSchemaRefactor,
-)
-from schemas.emails import (
-    OutputWelcomeNotification,
-    OutputManagerNotification,
-    OutputFilmReleaseNotification,
-    OutputFilmSelectionNotification
 )
 
 
@@ -59,7 +59,9 @@ class GeneralEmailService(BaseEmailService):
         )
 
     async def make_email_notification(self, **kwargs: Any):
-        raise NotImplementedError("make_email_notification not implemented inside the class")
+        raise NotImplementedError(
+            "make_email_notification not implemented inside the class"
+        )
 
 
 class PersonalEmailService(BaseEmailService):
@@ -89,23 +91,23 @@ class PersonalEmailService(BaseEmailService):
         )
 
     async def make_email_notification(self, **kwargs: Any):
-        raise NotImplementedError("make_email_notification not implemented inside the class")
+        raise NotImplementedError(
+            "make_email_notification not implemented inside the class"
+        )
 
 
 class FilmSelectionEmailService(PersonalEmailService):
     subject = "A weekly selection of movies for you"
     template_name = "personal-film-selection.html"
 
-    def __init__(
-        self, broker: RabbitMQBroker, storage: MongoStorage
-    ) -> None:
+    def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(
-            broker,
-            storage,
-            "notifications.film_selection_email_notification"
+            broker, storage, "notifications.film_selection_email_notification"
         )
 
-    async def make_email_notification(self, **kwargs: Any) -> OutputFilmSelectionNotification:
+    async def make_email_notification(
+        self, **kwargs: Any
+    ) -> OutputFilmSelectionNotification:
         return OutputFilmSelectionNotification(
             user_id=kwargs["user_id"],
             producer_id=uuid.uuid4(),
@@ -121,12 +123,12 @@ class FilmReleaseEmailService(PersonalEmailService):
 
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage):
         super().__init__(
-            broker,
-            storage,
-            "notifications.film_release_email_notification"
+            broker, storage, "notifications.film_release_email_notification"
         )
 
-    async def make_email_notification(self, **kwargs: Any) -> OutputFilmReleaseNotification:
+    async def make_email_notification(
+        self, **kwargs: Any
+    ) -> OutputFilmReleaseNotification:
         return OutputFilmReleaseNotification(
             user_id=kwargs["user_id"],
             producer_id=uuid.uuid4(),
@@ -143,9 +145,7 @@ class WelcomeEmailService(PersonalEmailService):
 
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
         super().__init__(
-            broker,
-            storage,
-            "notifications.welcome_message_email_notification"
+            broker, storage, "notifications.welcome_message_email_notification"
         )
 
     async def make_email_notification(self, **kwargs: Any) -> OutputWelcomeNotification:
@@ -159,11 +159,7 @@ class WelcomeEmailService(PersonalEmailService):
 
 class ManagerEmailNotificationService(GeneralEmailService):
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage) -> None:
-        super().__init__(
-            broker,
-            storage,
-            "notifications.manager_email_notification"
-        )
+        super().__init__(broker, storage, "notifications.manager_email_notification")
 
     async def make_email_notification(self, **kwargs: Any) -> OutputManagerNotification:
         return OutputManagerNotification(

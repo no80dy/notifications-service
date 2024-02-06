@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     jwt_secret_key: str = "secret"
     jwt_algorithm: str = "HS256"
 
+    auth_service_url: str
+
     sentry_dsn: str
 
 

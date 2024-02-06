@@ -2,16 +2,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from schemas.emails import (
-    InputWelcomeNotification,
     InputFilmReleaseNotification,
     InputFilmSelectionNotification,
-    InputManagerNotification
+    InputManagerNotification,
+    InputWelcomeNotification,
 )
 from services.emails import (
     FilmReleaseEmailService,
     FilmSelectionEmailService,
-    WelcomeEmailService,
     ManagerEmailNotificationService,
+    WelcomeEmailService,
     get_film_release_email_service,
     get_film_selection_email_service,
     get_manager_email_service,
@@ -86,7 +86,9 @@ async def handle_welcome_message(
 )
 async def handle_manager_message(
     message: InputManagerNotification,
-    email_service: Annotated[ManagerEmailNotificationService, Depends(get_manager_email_service)],
+    email_service: Annotated[
+        ManagerEmailNotificationService, Depends(get_manager_email_service)
+    ],
 ):
     """
     Обработчик получает сообщения пришедшие с панели менеджера
