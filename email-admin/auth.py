@@ -6,16 +6,13 @@ import jwt
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-
 JWT_SECRET_KEY: str = "secret"
 JWT_ALGORITHM: str = "HS256"
 
 
 def decode_token(token: str) -> Optional[dict]:
     try:
-        decoded_token = jwt.decode(
-            token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM]
-        )
+        decoded_token = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         return decoded_token if decoded_token["exp"] >= time.time() else None
     except Exception:
         return None

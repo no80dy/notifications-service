@@ -30,8 +30,7 @@ exponential_backoff() {
 check_postgresql_node() {
     echo "Waiting for PostgreSQL node to be ready..."
 
-
-      exponential_backoff $POSTGRESQL_HOST || return 1
+    exponential_backoff $POSTGRESQL_HOST || return 1
 
     echo "All PostgreSQL node is ready!"
     return 0
