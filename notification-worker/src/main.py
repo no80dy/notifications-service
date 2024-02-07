@@ -11,7 +11,9 @@ from integration import smtp
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with email.router.lifespan_context(app):
-        smtp.smtp_client = SMTP(hostname="127.0.0.1", port=1025)
+        smtp.smtp_client = SMTP(
+            hostname=settings.mailhog_host, port=settings.mailhog_port
+        )
         await smtp.smtp_client.connect()
         yield
         smtp.smtp_client.close()

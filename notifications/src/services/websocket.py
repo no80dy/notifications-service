@@ -11,7 +11,7 @@ from schemas.websocket import InputLikeCommentMessage
 
 class WebSocketService:
     mongo_collection_name = "push_notifications"
-    broker_queue_name = "websocket_queue"
+    broker_queue_name = "notifications.websockets_notification"
 
     def __init__(self, broker: RabbitMQBroker, storage: MongoStorage):
         self.broker = broker

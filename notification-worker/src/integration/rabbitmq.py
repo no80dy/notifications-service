@@ -1,6 +1,5 @@
 from faststream.rabbit import RabbitBroker
 
-
 rabbitmq_broker: RabbitBroker | None = None
 
 
