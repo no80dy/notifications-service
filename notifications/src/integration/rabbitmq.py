@@ -11,17 +11,13 @@ async def configure_rabbit_exchange():
 
 async def configure_rabbit_queues():
     await rabbitmq_broker.declare_queue(
-        RabbitQueue(
-            name="notifications.film_selection_email_notification"
-        )
+        RabbitQueue(name="notifications.film_selection_email_notification")
     )
     await rabbitmq_broker.declare_queue(
         RabbitQueue(name="notifications.film_release_email_notification")
     )
     await rabbitmq_broker.declare_queue(
-        RabbitQueue(
-            name="notifications.welcome_message_email_notification"
-        )
+        RabbitQueue(name="notifications.welcome_message_email_notification")
     )
     await rabbitmq_broker.declare_queue(
         RabbitQueue(name="notifications.manager_email_notification")

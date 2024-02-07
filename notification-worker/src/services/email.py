@@ -8,8 +8,8 @@ from typing import Annotated, Any
 from aiosmtplib import SMTP
 from core.jinja2 import template_env
 from fastapi import Depends
-from integration.smtp import get_smtp_client
 from integration.http import get_users_data
+from integration.smtp import get_smtp_client
 
 
 class BaseEmailSenderService:
@@ -44,13 +44,20 @@ class BasePersonalEmailSenderService(BaseEmailSenderService):
     def __init__(self, smtp_client: SMTP) -> None:
         super().__init__(smtp_client)
 
-    async def handle_message(self, user_id: uuid.UUID, producer_id: uuid, **kwargs: Any) -> None:
-        users_ids = [user_id, producer_id, ]
+    async def handle_message(
+        self, user_id: uuid.UUID, producer_id: uuid, **kwargs: Any
+    ) -> None:
+        users_ids = [
+            user_id,
+            producer_id,
+        ]
         if not all(users_ids):
             raise ValueError("Invalid users ids")
         users = await get_users_data(users_ids)
         if len(users) != 2:
-            raise ValueError(f"Expected two users, found {len(users)}")
+            raise ValueError(
+                f"Expected two users, found {len(users)} {producer_id} {user_id} {users}"
+            )
         user, producer = users[0], users[1]
         body = await self._render_template(username=user.username, **kwargs)
         await self.send_email(

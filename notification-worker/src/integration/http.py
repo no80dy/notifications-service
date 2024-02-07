@@ -1,6 +1,6 @@
-import httpx
 import uuid
 
+import httpx
 from core.config import settings
 from schemas.entity import UserInformation
 

@@ -26,7 +26,7 @@ router = RabbitRouter(
     host=settings.rabbitmq_host,
     port=settings.rabbitmq_port,
     login=settings.rabbitmq_login,
-    password=settings.rabbitmq_password
+    password=settings.rabbitmq_password,
 )
 
 

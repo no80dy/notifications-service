@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 
 from handler import NotificationHandler
-from queries import weekly_favorite_films_users
 from models import OutputFilmSelectionMessage
+from queries import weekly_favorite_films_users
 from settings import settings
 
 HOW_MANY_DAYS_AGO = 7
-NOTIFICATION_URL = settings.notification_service_url + '/personal-film-selection'
+NOTIFICATION_URL = settings.notification_service_url + "/personal-film-selection"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     days_ago = datetime.utcnow() - timedelta(days=HOW_MANY_DAYS_AGO)
     query = weekly_favorite_films_users.format(days_ago.strftime("%Y-%m-%d %H:%M:%S"))
     results = NotificationHandler.get_data_from_clickhouse(query)
@@ -21,8 +21,9 @@ if __name__ == '__main__':
             # Сформировать нотификацию
             message = OutputFilmSelectionMessage(
                 user_id=selection_user_id,
-                film_ids=selection_films_ids,
+                producer_id=settings.producer_id,
+                films_ids=selection_films_ids,
             )
-
+            print(message.model_dump_json())
             # Отправить в сервис нотификации
             print(NotificationHandler.sent_notification(NOTIFICATION_URL, message))
