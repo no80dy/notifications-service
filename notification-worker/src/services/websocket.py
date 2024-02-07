@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import Depends, WebSocket
 from integration.websocket import WebSocketRouteTable, get_websocket_route_table
+from integration.http import get_users_data
 
 
 class WebSocketSenderService:
@@ -12,14 +13,15 @@ class WebSocketSenderService:
         self.websocket_route_table = websocket_route_table
 
     async def handle_message(self, data: dict):
-        connection = self.websocket_route_table.get_websocket_by_user_id(
-            data["user_id"]
-        )
+        user_id, producer_id = data["user_id"], data["producer_id"]
+        connection = self.websocket_route_table.get_websocket_by_user_id(user_id)
         if not connection:
             return None
-        producer_id = data["producer_id"]
+        users = await get_users_data([producer_id, ])
+        if len(users) != 1:
+            raise ValueError(f"Expected two users, found {len(users)}")
         await connection.send_text(
-            f"Ваш комментарий понравился пользователю {producer_id}"
+            f"The user {users[0].username} liked your comment"
         )
 
 
